@@ -1,0 +1,6 @@
+# This file is a common way to manage dependencies in a Python project. It lists all the packages your project needs to run.
+
+# A simple example of Python dependencies
+flask==2.2.2
+requests>=2.28.1
+beautifulsoup4
