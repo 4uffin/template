@@ -213,21 +213,25 @@ jobs:
 
 ## **📂 Project Structure**
 
-A simple, clear representation of your project's directory structure.
+A well-structured project is easier for new developers to understand and contribute to. This is a typical layout for a modern repository.
 
-REPO/  
-├── src/  
-│   ├── main.py  
-│   └── utils/  
-│       └── helper.py  
-├── tests/  
-│   └── test\_main.py  
-├── .gitignore  
-├── README.md  
-├── package.json  
-├── .env.example  
-├── requirements.txt  
-└── LICENSE
+### **Essential Files**
+
+* README.md: The main file that introduces your project. It's the first thing users and contributors see.  
+* LICENSE: Specifies the license under which your project is distributed, such as MIT or Apache 2.0. This is crucial for legal clarity.  
+* .gitignore: A file that tells Git which files or directories to ignore and not commit to the repository (e.g., node\_modules, .env, build artifacts).  
+* package.json / requirements.txt: These files list the project's dependencies, making it easy for others to set up the development environment.  
+* CODE\_OF\_CONDUCT.md: Sets a clear standard for community behavior and ensures a welcoming environment for all contributors.  
+* CONTRIBUTING.md: A detailed guide on how to contribute to the project, including information on setting up the local environment, running tests, and submitting pull requests.
+
+### **Common Directories**
+
+* /src: The source code for your application. This is where the main logic lives.  
+* /dist or /build: Contains the compiled or bundled output of your source code, ready for deployment.  
+* /docs: All project documentation, including tutorials, API references, and architecture overviews.  
+* /tests or /spec: Holds all unit, integration, and end-to-end tests for the project.  
+* /assets: Static assets like images, fonts, and other media files used by the project.  
+* /.github: A special directory used by GitHub for configuration files. It's where you define your **CI/CD workflows** (workflows/) and issue templates (ISSUE\_TEMPLATE/).
 
 ## **Design and Architecture**
 
