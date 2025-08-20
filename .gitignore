@@ -1,0 +1,23 @@
+# This file is crucial for keeping your repository clean. It prevents unnecessary or sensitive files from being committed. You can often find a good starting point for your project's language or framework on gitignore.io.
+
+# General
+.DS_Store
+.env
+
+# Node.js
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# Caching
+/cache
+
+# Build outputs
+/build
+/dist
+/out
+
+# IDE-specific files
+.idea/
+.vscode/
+*.swp
