@@ -4,5 +4,7 @@
 flask==2.2.2
 requests>=2.28.1
 beautifulsoup4
+numpy
+pandas
 
 # Note: This type of file varies by language. For JavaScript, you'd have a package.json. For Ruby, a Gemfile.
