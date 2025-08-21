@@ -150,30 +150,30 @@ To run the project, simply execute the main file:
 
 ### **Basic Usage**
 
-**Example for a Node.js project**  
+Example for a Node.js project  
 ```node index.js```
 
-**Example for a Python project**  
+Example for a Python project  
 ```python main.py```
 
 ### **Advanced Usage**
 
 You can also use command-line arguments to customize the behavior of the application:
 
-# Run with a specific port  
+Run with a specific port  
 ```node index.js --port=3000```
 
-# Process a specific data file  
+Process a specific data file  
 ```python main.py --file=data.csv```
 
 ## **🧪 Running Tests**
 
 To run the automated tests for this project, run the following command:
 
-# Example for a Node.js project  
+Example for a Node.js project  
 ```npm test```
 
-# Example for a Python project  
+Example for a Python project  
 ```pytest```
 
 ## **📈 Benchmarks**
@@ -189,7 +189,7 @@ A table or list showing the project's performance in key areas, such as speed or
 
 Here's how to deploy the project to a live environment:
 
-# Example for a Node.js project with a build step  
+Example for a Node.js project with a build step:  
 ```
 npm run build
 npm run start
@@ -317,7 +317,7 @@ To verify a release, download the binary and the .asc signature file, then run:
 
 ## **Roadmap**
 
-* [ ] Add feature A  
+* [x] Add feature A  
 * [ ] Fix bug B  
 * [ ] Implement API C
 
@@ -479,7 +479,7 @@ A comprehensive list of all non-code assets and resources used in the project.
 
 ## **📄 License**
 
-Distributed under the **MIT License**. See LICENSE for more information.
+Distributed under the **MIT License**. See [LICENSE](https://www.example.com) for more information.
 
 ## **📧 Contact**
 
