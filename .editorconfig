@@ -1,12 +1,61 @@
-> This file helps maintain consistent coding styles across different editors and IDEs, which is great for collaborative projects.
+# This file helps maintain consistent coding styles across different editors and IDEs,
+# [cite_start]which is great for collaborative projects[cite: 1].
+# [cite_start]For more information on EditorConfig, visit http://editorconfig.org[cite: 2].
 
-# http://editorconfig.org
+# ==============================================================================
+# Base Settings
+# ==============================================================================
+
+# Denotes that this is the root of the project and that editors should stop searching
+# [cite_start]for further configuration files in parent directories[cite: 2].
 root = true
 
+# ==============================================================================
+# General Rules for All Files
+# [cite_start]Applies to all files not otherwise specified below[cite: 2].
+# ==============================================================================
+
 [*]
+# The character used for indentation: 'space' or 'tab'.
 indent_style = space
+# [cite_start]The number of columns for indentation[cite: 2].
 indent_size = 4
+# The line ending to use. [cite_start]'lf' (line feed) is the standard for Linux and macOS[cite: 2].
 end_of_line = lf
+# The character set to use for the file.
 charset = utf-8
+# [cite_start]Removes any whitespace from the end of a line[cite: 2].
 trim_trailing_whitespace = true
+# [cite_start]Ensures that a blank newline is inserted at the end of the file[cite: 2].
 insert_final_newline = true
+# Sets the maximum number of characters allowed on a single line. This helps with readability.
+max_line_length = 80
+
+# ==============================================================================
+# Specific Rules for Common File Types
+# ==============================================================================
+
+# JavaScript and JSON files
+[*.{js,json}]
+# A common convention for JavaScript is 2 spaces for indentation.
+indent_size = 2
+
+# HTML files
+[*.html]
+# A common convention for HTML is 2 spaces for indentation.
+indent_size = 2
+
+# CSS files
+[*.css]
+# A common convention for CSS is 2 spaces for indentation.
+indent_size = 2
+
+# Markdown files
+[*.md]
+# Markdown files often allow for longer lines to accommodate long links or sentences.
+max_line_length = 100
+
+# Python files
+[*.py]
+# Python's PEP 8 style guide recommends 4 spaces for indentation.
+indent_size = 4
