@@ -1,3 +1,6 @@
+> [!WARNING]
+> This is a warning label, use this to make it very clear to use caution!
+
 # **Project Title ✨**
 
 A short, but powerful, description of your project. What does it do? Why is it useful?
