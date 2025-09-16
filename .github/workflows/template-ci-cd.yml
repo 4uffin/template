@@ -1,0 +1,313 @@
+# ==============================================
+# GitHub Actions Workflow Template
+# ==============================================
+# HOW TO USE THIS TEMPLATE:
+# 1. Copy this file to your repository's .github/workflows directory
+# 2. Rename it to match your workflow purpose (e.g., ci-cd.yml)
+# 3. Remove any jobs or steps you don't need
+# 4. Uncomment and customize sections you want to use
+# 5. Set up required secrets in repository settings
+#
+# FEATURES INCLUDED:
+# ✓ Multi-environment testing
+# ✓ Code quality checks
+# ✓ Security scanning
+# ✓ Docker build and push
+# ✓ Automated deployment
+# ✓ Status notifications
+
+name: CI/CD Pipeline Template
+
+# ==============================================
+# WORKFLOW TRIGGERS
+# ==============================================
+on:
+  # [REQUIRED] When to run this workflow
+  push:
+    branches: 
+      - main
+      - develop
+      # [OPTIONAL] Add more branches as needed
+      # - 'feature/*'
+      # - 'release/*'
+    
+    # [OPTIONAL] Filter by file changes
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      # [MODIFY] Add more path filters as needed
+    
+    tags: 
+      - 'v*'  # Runs on version tags
+
+  pull_request:
+    branches: 
+      - main
+      - develop
+    types: 
+      - opened
+      - synchronize
+      - reopened
+
+  # [OPTIONAL] Manual trigger with input parameters
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      debug_enabled:
+        description: 'Enable debug mode'
+        required: false
+        type: boolean
+        default: false
+
+# ==============================================
+# ENVIRONMENT VARIABLES
+# ==============================================
+env:
+  # [MODIFY] Container registry settings
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
+  # [OPTIONAL] Environment settings
+  APP_ENV: ${{ github.event.inputs.environment || 'development' }}
+  DEBUG: ${{ github.event.inputs.debug_enabled || false }}
+  
+  # [UNCOMMENT AND MODIFY] Add custom variables
+  # NODE_ENV: production
+  # PYTHON_VERSION: 3.11
+  # API_URL: https://api.example.com
+
+# ==============================================
+# WORKFLOW JOBS
+# ==============================================
+jobs:
+  # --------------------------------------------
+  # Code Quality & Testing
+  # --------------------------------------------
+  quality:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # [MODIFY] Test against your required versions
+        python-version: ['3.9', '3.10', '3.11']
+      fail-fast: false  # Continue testing other versions if one fails
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for tools
+
+      # [REQUIRED] Setup Python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      # [MODIFY] Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+          # [MODIFY] Development dependencies
+          pip install pytest pytest-cov flake8 black mypy
+          
+          # [UNCOMMENT IF NEEDED] Additional package managers
+          # pip install -r requirements-dev.txt
+          # poetry install
+          # pip install -e ".[dev]"
+
+      # [MODIFY] Quality checks
+      - name: Run quality checks
+        run: |
+          black --check .
+          flake8 .
+          mypy .
+          
+          # [UNCOMMENT AND MODIFY] Additional checks
+          # pylint src/
+          # bandit -r src/
+          # safety check
+
+      # [REQUIRED] Run tests
+      - name: Run tests
+        run: |
+          pytest --cov=./ --cov-report=xml
+          
+          # [UNCOMMENT AND MODIFY] Test configurations
+          # pytest tests/unit/
+          # pytest tests/integration/
+          # pytest -v -m "not slow"
+
+      # [OPTIONAL] Upload coverage
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+
+  # --------------------------------------------
+  # Security Scanning
+  # --------------------------------------------
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      # [RECOMMENDED] SAST scanning
+      - name: Run SAST scan
+        uses: github/codeql-action/analyze@v2
+        with:
+          languages: python  # [MODIFY] Add your languages
+
+      # [OPTIONAL] Dependency scanning
+      # Requires SNYK_TOKEN secret
+      - name: Check dependencies
+        uses: snyk/actions/python@master
+        env:
+          # [REQUIRED] Add this secret in repository settings
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        # [UNCOMMENT AND MODIFY] Additional settings
+        # with:
+        #   args: --severity-threshold=high
+
+  # --------------------------------------------
+  # Build & Push
+  # --------------------------------------------
+  build:
+    name: Build & Push
+    needs: [quality, security]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      # [REQUIRED] Setup Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # [REQUIRED] Login to registry
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # [REQUIRED] Extract metadata
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # [MODIFY] Configure tags as needed
+          tags: |
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-
+            type=ref,event=branch
+            type=ref,event=pr
+
+      # [REQUIRED] Build and push
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile  # [MODIFY] Path to your Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # [RECOMMENDED] Cache configuration
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # [OPTIONAL] Build arguments
+          # build-args: |
+          #   NODE_ENV=production
+          #   API_URL=${{ env.API_URL }}
+
+  # --------------------------------------------
+  # Deploy
+  # --------------------------------------------
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    # [MODIFY] Environment based on branch/tag
+    environment: ${{ github.event.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    
+    steps:
+      - name: Deploy to environment
+        run: |
+          echo "Deploying to ${{ github.event.ref == 'refs/heads/main' && 'production' || 'staging' }}"
+          # [REQUIRED] Add your deployment steps
+          # Examples:
+          
+          # AWS ECS:
+          # aws ecs update-service --cluster $CLUSTER --service $SERVICE --force-new-deployment
+          
+          # Kubernetes:
+          # kubectl apply -f k8s/
+          
+          # Cloud Run:
+          # gcloud run deploy SERVICE --image $IMAGE
+          
+          # [MODIFY] Add your deployment commands
+
+  # --------------------------------------------
+  # Notifications
+  # --------------------------------------------
+  notify:
+    name: Notify
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      # [OPTIONAL] Slack notification
+      # Requires SLACK_WEBHOOK_URL secret
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,workflow
+        env:
+          # [REQUIRED] Add this secret in repository settings
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
+
+      # [UNCOMMENT AND MODIFY] Additional notifications
+      # - name: Send email notification
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 465
+      #     username: ${{ secrets.EMAIL_USERNAME }}
+      #     password: ${{ secrets.EMAIL_PASSWORD }}
+      #     subject: Workflow ${{ github.workflow }} completed
+      #     body: Build completed with status ${{ job.status }}
+
+      # [UNCOMMENT AND MODIFY] Custom webhook
+      # - name: Send webhook notification
+      #   uses: distributhor/workflow-webhook@v3
+      #   with:
+      #     webhook_url: ${{ secrets.WEBHOOK_URL }}
+      #     webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
